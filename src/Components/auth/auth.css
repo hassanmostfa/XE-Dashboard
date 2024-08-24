@@ -2,11 +2,17 @@
     background-color: white;
     box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
     border-radius: 10px;
-    margin-top: 120px;
     padding: 0;
-    width: 700px;
+    width: 750px;
 }
 
+.register .container {
+    margin-top: 50px;
+}
+
+.login .container {
+    margin-top: 100px;
+}
 
 .register .container h3 , .login .container h3{
     color: var(--main-color);
@@ -21,7 +27,7 @@
 
 .container .form {
     padding: 0px 15px;
-    width: 300px;
+    width: 350px;
     margin: 0 auto;
 }
 
@@ -58,7 +64,7 @@
     background-size: cover;
     background-position: center;
     width: 65%;
-    height: 400px;
+    height: 522px;
     border-radius: 10px 0 0 10px;
 }
 
