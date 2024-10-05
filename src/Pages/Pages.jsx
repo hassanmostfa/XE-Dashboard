@@ -3,19 +3,21 @@ import {BrowserRouter, Routes, Route} from 'react-router-dom'
 import Login from '../Components/auth/Login'
 import Register from '../Components/auth/Register'
 import Test from '../Components/Common/Test'
-import Home from './Home/Home'
-import Dashboard from './Dashboard/Dashboard'
+import Dashboard from './Dashboard Pages/dashboard/Dashboard'
 import Protected from '../Components/Common/Protected'
+import AddUser from '../Pages/Dashboard Pages/Add User/AddUser'
+import AllUsers from './Dashboard Pages/all users/AllUsers'
 const pages = () => {
     return (
         <div className="pages">
             <BrowserRouter>
                 <Routes>
-                    <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
+                    <Route path="/login" element={<Protected Cmp={Login} />} />
                     <Route path="/test" element={<Protected Cmp={Test} />} />
-                    <Route path="/user/home" element={<Protected Cmp={Home} />} />
-                    <Route path="/dashboard" element={<Protected Cmp={Dashboard} />} />
+                    <Route path="/" element={<Dashboard/>} />
+                    <Route path="/admin/add-user" element={<AddUser/>} />
+                    <Route path="/admin/all-users" element={<AllUsers/>} />
                 </Routes>
             </BrowserRouter>
         </div>
