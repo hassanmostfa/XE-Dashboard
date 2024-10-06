@@ -1,6 +1,6 @@
     import React from "react";
     import "./pageHeader.css";
-    const PageHeader = ({name, icon}) => {
+    const PageHeader = ({name , icon}) => {
     return (
     <div className="page-header col-md-12 shadow">
         <div className="container d-flex align-items-center justify-content-between">

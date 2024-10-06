@@ -2,10 +2,13 @@
     background-color: white;
     box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
     border-radius: 10px;
-    padding: 0;
-    width: 750px;
+    /* width: 50% !important; */
+    max-width: 500px !important;
+    padding: 50px 20px;
 }
-
+.login .form-group{
+    margin-bottom: 10px !important;
+}
 .register .container {
     margin-top: 50px;
 }
@@ -18,15 +21,16 @@
     color: var(--main-color);
     font-size: 24px;
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
+    margin-top: 10px;
     width: 100%;
     font-weight: 700;
-    border-bottom: 1px solid var(--text-light-color);
+    /* border-bottom: 1px solid var(--text-light-color); */
     padding-bottom: 10px;
 }
 
 .container .form {
-    padding: 0px 15px;
+    padding: 0px 15px !important;
     width: 350px;
     margin: 0 auto;
 }

@@ -14,9 +14,9 @@
     font-size: 19px !important;
 }
 
-.sidebar .nav .nav-item.active > .nav-link .menu-title{
+/* .sidebar .nav .nav-item.active > .nav-link .menu-title{
     color: var(--active-color) !important;
-}
+} */
 
 .sidebar .nav .nav-item .nav-link .menu-title {
     font-weight: 600;
@@ -94,6 +94,9 @@ nav li:hover span {
 
 .nav-item span , .sidebar .nav-item i{
     color: var(--text-light-color) !important;
+}
+ .sidebar .nav-item .menu-arrow{
+    margin-left: 0 !important;
 }
 
 .nav-item:hover i {
