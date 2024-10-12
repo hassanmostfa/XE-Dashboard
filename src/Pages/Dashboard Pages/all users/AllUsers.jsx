@@ -40,7 +40,7 @@
                         <table className="table text-center table-hover" >
                             <thead className="table-dark">
                             <tr style={{ fontWeight: "bold" }}>
-                                <th>كود المستخدم</th>
+                                <th># </th>
                                 <th> الاسم </th>
                                 <th> البريد الالكتروني </th>
                                 <th> الدور </th>
@@ -50,9 +50,9 @@
                             </tr>
                             </thead>
                             <tbody>
-                            {users.map((user) => (
+                            {users.map((user,index) => (
                                 <tr key={user.id}>
-                                    <td>{user.id} </td> {/* Tracking ID as the user ID */}
+                                    <td>{index + 1} </td> {/* Tracking ID as the user ID */}
                                     <td>
                                         {user.name}
                                     </td>

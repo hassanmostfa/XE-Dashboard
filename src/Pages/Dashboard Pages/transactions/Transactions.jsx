@@ -2,36 +2,13 @@ import React from 'react';
 import Header from '../../../Components/Admin Components/header/Header';
 import SideNav from '../../../Components/Admin Components/sideNav/SideNav';
 import PageHeader from '../../../Components/Common/page header/PageHeader';
+import { useGetTransactionsQuery } from '../../../api/transactionsSlice';
 
 const Transactions = () => {
   // Sample transactions data
-  const transactionsData = [
-    {
-      id: 1,
-      client_name: 'Ahmed Attia',
-      service: 'Haircut',
-      amount: 50.00,
-      payment_status: 'Paid',
-      transaction_date: '2024-10-01',
-    },
-    {
-      id: 2,
-      client_name: 'Sara Ali',
-      service: 'Manicure',
-      amount: 100.00,
-      payment_status: 'Pending',
-      transaction_date: '2024-10-02',
-    },
-    {
-      id: 3,
-      client_name: 'Mohamed Salah',
-      service: 'Massage',
-      amount: 150.00,
-      payment_status: 'Paid',
-      transaction_date: '2024-10-03',
-    },
-  ];
-
+  const { data: transactions, error, isLoading } = useGetTransactionsQuery();
+  console.log(transactions);
+  
   return (
     <div>
       <Header />
@@ -58,40 +35,50 @@ const Transactions = () => {
                     <hr />
                   </h3>
                   <div className="table-responsive">
-                    <table className="table text-center table-hover">
-                      <thead className="table-dark">
-                        <tr style={{ fontWeight: 'bold' }}>
-                          <th>رقم المعاملة</th>
-                          <th>العميل</th>
-                          <th>الخدمة</th>
-                          <th>المبلغ</th>
-                          <th>حالة الدفع</th>
-                          <th>تاريخ المعاملة</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {transactionsData.map((transaction) => (
-                          <tr key={transaction.id}>
-                            <td>{transaction.id}</td>
-                            <td>{transaction.client_name}</td>
-                            <td>{transaction.service}</td>
-                            <td>{transaction.amount.toFixed(2)} ريال</td>
-                            <td>
-                              <span
-                                className={`badge ${
-                                  transaction.payment_status === 'Paid'
-                                    ? 'badge-success'
-                                    : 'badge-warning'
-                                }`}
-                              >
-                                {transaction.payment_status}
-                              </span>
-                            </td>
-                            <td>{transaction.transaction_date}</td>
+                    {isLoading ? (
+                      <div className="text-center">
+                        <div className="spinner-border" role="status">
+                          <span className="sr-only">Loading...</span>
+                        </div>
+                      </div>
+                    ) : error ? (
+                      <div>Error loading countries</div>
+                    ) : (
+                      <table className="table text-center table-hover">
+                        <thead className="table-dark">
+                          <tr style={{ fontWeight: 'bold' }}>
+                            <th># </th>
+                            <th>العميل</th>
+                            <th>الخدمة</th>
+                            <th>المبلغ</th>
+                            <th>حالة الدفع</th>
+                            <th>تاريخ المعاملة</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody>
+                          {transactions.transactions.map((transaction, index) => (
+                            <tr key={transaction.id}>
+                              <td>{index + 1}</td>
+                              <td>{transaction.client_name}</td>
+                              <td>{transaction.service}</td>
+                              <td>{transaction.amount} ريال</td>
+                              <td>
+                                <span
+                                  className={`badge ${
+                                    transaction.payment_status === 'success'
+                                      ? 'badge-success'
+                                      : 'badge-warning'
+                                  }`}
+                                >
+                                  {transaction.payment_status}
+                                </span>
+                              </td>
+                              <td>{transaction.created_at}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    )}
                   </div>
                 </div>
               </div>

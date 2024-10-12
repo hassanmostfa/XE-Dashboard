@@ -64,7 +64,7 @@ const AddCountriesForm = ({ onSubmit }) => {
             {error.name && <p className="text-danger">{error.name}</p>}
           </div>
 
-          <div className="col-sm-6 mt-4">
+          <div className="col-sm-6 ">
             <label htmlFor="exampleInputImage1">الصورة</label>
             <input
               type="file"

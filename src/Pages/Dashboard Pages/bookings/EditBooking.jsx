@@ -1,23 +1,28 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "../../../Components/Admin Components/header/Header";
 import SideNav from "../../../Components/Admin Components/sideNav/SideNav";
 import PageHeader from "../../../Components/Common/page header/PageHeader";
-import { useNavigate } from "react-router-dom";
-import { useCreateBookingMutation } from "../../../api/bookingSlice";
-import { useGetServicesQuery } from "../../../api/servicesSlice";
+import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
+import { useGetBookingByIdQuery, useUpdateBookingMutation } from "../../../api/bookingSlice";
+import { useGetServicesQuery } from "../../../api/servicesSlice";
 
-const CreateBooking = () => {
+const EditBooking = () => {
   const navigate = useNavigate();
-  const { data: services, isLoading } = useGetServicesQuery();
-  console.log(services);
+  const { id } = useParams(); // Get the booking ID from the URL
 
-  const [createBooking] = useCreateBookingMutation(); // API hook
+  const { data: services, isLoading: servicesLoading } = useGetServicesQuery();
+  const { data: booking, isLoading: bookingLoading } = useGetBookingByIdQuery(id);
+
+  
+  const [updateBooking] = useUpdateBookingMutation(); // API hook to update booking
+
   const paymentGates = [
     { id: 1, name: "paypal" },
     { id: 2, name: "stripe" },
     { id: 3, name: "cash" },
   ];
+
   const [formData, setFormData] = useState({
     client_name: "",
     client_phone: "",
@@ -28,14 +33,34 @@ const CreateBooking = () => {
     booking_status: "",
     payment_gate: "",
   });
+
   const [error, setError] = useState({});
-  if (isLoading) {
+
+  useEffect(() => {
+    if (booking && !bookingLoading) {
+        setFormData({
+            client_name: booking.booking.client_name,
+            client_phone: booking.booking.client_phone,
+            client_email: booking.booking.client_email,
+            service_id: booking.booking.service_id,
+            notes: booking.booking.notes,
+            payment_status: booking.booking.payment_status,
+            booking_status: booking.booking.booking_status,
+            payment_gate: booking.booking.payment_gate,
+            id: booking.booking.id,
+            service_name: booking.booking.service_name,
+          });
+    }
+  }, [booking , bookingLoading]);
+  
+  if (servicesLoading || bookingLoading) {
     return (
       <div className="center-main-loader">
         <div className="main-loader"></div>
       </div>
     );
   }
+
   // Handle form input changes
   const handleChange = (e) => {
     setFormData({
@@ -48,19 +73,18 @@ const CreateBooking = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validation
     if (formData.client_name === "") {
       setError({ ...error, client_name: "Client name is required" });
       return;
     }
 
     try {
-      await createBooking(formData).unwrap(); // Send data to the backend
-      Swal.fire("تم!", "تم اضافة الحجز بنجاح.", "success");
-      navigate("/admin/bookings"); // Navigate to bookings page on success
+      await updateBooking({ id, ...formData }).unwrap(); // Send updated data to the backend
+      Swal.fire("تم!", "تم تحديث الحجز بنجاح.", "success");
+      navigate("/admin/bookings");
     } catch (err) {
-      console.error("Failed to create booking:", err);
-      Swal.fire("خطأ!", "حدث خطأ أثناء محاولة اضافة الحجز.", "error");
+      console.error("Failed to update booking:", err);
+      Swal.fire("خطأ!", "حدث خطأ أثناء محاولة تحديث الحجز.", "error");
     }
   };
 
@@ -71,17 +95,13 @@ const CreateBooking = () => {
         <SideNav />
         <div className="add_user_container">
           <div style={{ marginTop: "30px" }}>
-            <PageHeader name="إضافة حجز جديد" icon="fa fa-calendar-plus" />
+            <PageHeader name="تعديل الحجز" icon="fa fa-calendar-edit" />
           </div>
           <div className="row content-wrapper">
             <div className="col-12 stretch-card content-wrapper">
               <div className="card">
                 <div className="card-body">
-                  <h4 className="card-title">نموذج إضافة حجز جديد</h4>
-                  <p className="card-description">
-                    الرجاء ملء الحقول التالية والتأكد من صحة البيانات قبل
-                    التأكيد.
-                  </p>
+                  <h4 className="card-title">نموذج تعديل الحجز</h4>
                   <form className="forms-sample" onSubmit={handleSubmit}>
                     <div className="row">
                       <div className="form-group col-md-6">
@@ -173,51 +193,23 @@ const CreateBooking = () => {
                         </select>
                       </div>
                     </div>
-                    <div className="row">
-                      <div className="form-group col-md-6">
-                        <label htmlFor="payment_gate">بوابة الدفع</label>
-                        <select
-                          className="form-control"
-                          id="payment_gate"
-                          name="payment_gate"
-                          value={formData.payment_gate}
-                          onChange={handleChange}
-                        >
-                          <option value="" selected disabled>
-                            اختر بوابة الدفع
-                          </option>
-                          {paymentGates.map((paymentGateway) => (
-                            <option
-                              key={paymentGateway.id}
-                              value={paymentGateway.name}
-                            >
-                              {paymentGateway.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div className="form-group col-md-6">
-                        <label htmlFor="notes">ملاحظات</label>
-                        <textarea
-                          className="form-control"
-                          id="notes"
-                          name="notes"
-                          value={formData.notes}
-                          onChange={handleChange}
-                          placeholder="أدخل ملاحظات إضافية"
-                        ></textarea>
-                      </div>
+                    <div className="form-group">
+                      <label htmlFor="notes">ملاحظات</label>
+                      <textarea
+                        className="form-control"
+                        id="notes"
+                        name="notes"
+                        value={formData.notes}
+                        onChange={handleChange}
+                        placeholder="أدخل ملاحظات إضافية"
+                      ></textarea>
                     </div>
                     <div className="d-flex justify-content-center gap-2">
-                      <button
-                        type="submit"
-                        className="btn btn-gradient-primary"
-                      >
+                      <button type="submit" className="btn btn-gradient-primary">
                         حفظ
                       </button>
                       <button
-                        type="reset"
+                        type="button"
                         onClick={() => navigate("/admin/bookings")}
                         className="btn btn-gradient-danger"
                       >
@@ -235,4 +227,4 @@ const CreateBooking = () => {
   );
 };
 
-export default CreateBooking;
+export default EditBooking;

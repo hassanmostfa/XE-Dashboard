@@ -1,9 +1,13 @@
 import React from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import "./sideNav.css";
 import logo from "../../../images/Logo.png";
 import userImage from "../../../images/user-photo.jpg";
 const SideNav = () => {
+  const navigate = useNavigate();
+  const handleLogout=() => {
+    localStorage.clear();
+  }
   return (
     <div>
       <nav className="sidebar sidebar-offcanvas" id="sidebar">
@@ -65,7 +69,7 @@ const SideNav = () => {
               aria-controls="ui-basic"
             >
               <div>
-                <i class="fa fa-globe" aria-hidden="true"></i>
+                <i class="fa fa-globe" aria-hidden="true" onClick={() => navigate("/admin/all-countries")}></i>
                 <span className="menu-title" style={{ fontWeight: "700" }}>
                   البلاد
                 </span>
@@ -92,7 +96,7 @@ const SideNav = () => {
               aria-controls="ui-basic"
             >
               <div>
-                <i class="fa fa-cogs" aria-hidden="true"></i>
+                <i class="fa fa-cogs" aria-hidden="true" onClick={() => navigate("/admin/services")}></i>
                 <span className="menu-title" style={{ fontWeight: "700" }}>
                   الخدمات
                 </span>
@@ -124,7 +128,7 @@ const SideNav = () => {
               aria-controls="ui-basic"
             >
               <div>
-                <i class="fa fa-cogs" aria-hidden="true"></i>
+                <i class="fa fa-book" aria-hidden="true" onClick={() => navigate("/admin/bookings")}></i>
                 <span className="menu-title" style={{ fontWeight: "700" }}>
                   الحجوزات
                 </span>
@@ -163,10 +167,10 @@ const SideNav = () => {
                 </span>
               </Link>
           </li>
-          <li className="nav-item">
-            <Link className="nav-link" to="/">
-            <span>
-              <i className="mdi mdi-logout me-2 text-primary mx-2" />
+          <li className="nav-item" onClick={() => handleLogout()}>
+            <Link className="nav-link" to="/login" >
+            <i className="fa fa-sign-out" aria-hidden="true" />
+            <span className="menu-title" style={{ fontWeight: "700" }}>
               تسجيل الخروج
             </span>
             </Link>

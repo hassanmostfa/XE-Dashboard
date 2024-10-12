@@ -3,20 +3,13 @@ import Header from '../../../Components/Admin Components/header/Header';
 import SideNav from '../../../Components/Admin Components/sideNav/SideNav';
 import PageHeader from '../../../Components/Common/page header/PageHeader';
 import './messages.css'; // Assuming you want to add styles
-
+import {useGetMessagesQuery,useDeleteMessageMutation} from '../../../api/messageSlice';
+import Swal from 'sweetalert2';
 const Messages = () => {
   const [showPopup, setShowPopup] = useState(false); // For controlling popup visibility
   const [selectedMessage, setSelectedMessage] = useState(null); // To store the selected message data
-
-  const messagesData = [
-    {
-      id: 1,
-      name: 'ahmed attia',
-      phone: '010254002355',
-      message: 'This is a detailed message from the user.',
-    },
-  ];
-
+  const {data:messagesData,isLoading,error,refetch} = useGetMessagesQuery();
+  const [deleteMessage] = useDeleteMessageMutation();
   const openPopup = (message) => {
     setSelectedMessage(message); // Set the selected message
     setShowPopup(true); // Show the popup
@@ -27,6 +20,29 @@ const Messages = () => {
     setSelectedMessage(null); // Clear selected message
   };
 
+  const handleDelete = async (messageId) => {
+    Swal.fire({
+      title: "هل أنت متأكد؟",
+      text: "لن تتمكن من التراجع عن هذا!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "نعم، احذفها!",
+      cancelButtonText: "الغاء",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await deleteMessage(messageId).unwrap();
+          Swal.fire("تم الحذف!", "تم حذف الدولة بنجاح.", "success");
+          refetch(); // Refresh the countries list after deletion
+        } catch (err) {
+          console.error("Failed to delete country:", err);
+          Swal.fire("خطأ!", "حدث خطأ أثناء محاولة حذف الدولة.", "error");
+        }
+      }
+    });
+  };
   return (
     <div className='messages'>
       <Header />
@@ -47,10 +63,17 @@ const Messages = () => {
                     <hr />
                   </h3>
                   <div className="table-responsive">
+                  {isLoading ? (
+                      <div className="center-loader">
+                        <div className="loader"></div>
+                      </div>
+                    ) : error ? (
+                      <div>Error loading countries</div> // Display error message if there is an error
+                    ) : (
                     <table className="table text-center table-hover">
                       <thead className="table-dark">
                         <tr style={{ fontWeight: 'bold' }}>
-                          <th>كود المستخدم</th>
+                          <th>#</th>
                           <th>الاسم</th>
                           <th>الرسالة</th>
                           <th>الهاتف</th>
@@ -58,9 +81,9 @@ const Messages = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {messagesData.map((message) => (
+                        {messagesData && messagesData.messages.map((message,index) => (
                           <tr key={message.id}>
-                            <td>{message.id}</td>
+                            <td>{index + 1}</td>
                             <td>{message.name}</td>
                             <td>{message.message.slice(0, 20)}</td>
                             <td>{message.phone}</td>
@@ -72,7 +95,7 @@ const Messages = () => {
                               >
                                 <i className="fa fa-eye" aria-hidden="true"></i>
                               </button>
-                              <button className="btn text-danger" title="حذف">
+                              <button className="btn text-danger" title="حذف" onClick={() => handleDelete(message.id)}>
                                 <i className="fa fa-trash" aria-hidden="true"></i>
                               </button>
                             </td>
@@ -80,6 +103,7 @@ const Messages = () => {
                         ))}
                       </tbody>
                     </table>
+                  )}
                   </div>
                 </div>
               </div>

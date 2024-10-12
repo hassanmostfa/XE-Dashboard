@@ -3,6 +3,8 @@ import Header from "../../../Components/Admin Components/header/Header";
 import SideNav from "../../../Components/Admin Components/sideNav/SideNav";
 import PageHeader from "../../../Components/Common/page header/PageHeader";
 import { useNavigate } from "react-router-dom";
+import { useCreateServiceMutation } from "../../../api/servicesSlice";
+import { useGetCountriesQuery } from "../../../api/countriesSlice";
 
 const AddService = () => {
   const navigate = useNavigate();
@@ -22,13 +24,18 @@ const AddService = () => {
     feature4_title: "",
     feature4_description: "",
   });
+  const [createService,isSuccess ] = useCreateServiceMutation();
+  const { data: countries, isLoading, refetch } = useGetCountriesQuery();
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form Submitted:", formData);
+    await createService(formData);
+    if (isSuccess) {
+      navigate("/admin/services");
+    }
   };
   return (
     <div>
@@ -109,9 +116,20 @@ const AddService = () => {
                           <option value="" disabled selected>
                             اختر الدولة
                           </option>
-                          <option value="1">مصر</option>
-                          <option value="2">السعودية</option>
-                          <option value="3">الامارات</option>
+                          {countries && (
+                            <>
+                              {countries.map((country) => (
+                                <option
+                                  key={country.id}
+                                  value={country.id}
+                                >
+                                  {country.name}
+                                </option>
+                              ))}
+                            </>
+                          )}  
+                          
+                          
                         </select>
                         {error && (
                           <p className="text-danger">{error.country}</p>

@@ -18,12 +18,12 @@ const MainView = () => {
           {/* start content */}
           <StatisticalCards />
 
-          <div className="row my-5">
+          {/* <div className="row my-5">
               <div className="col-md-8"><LineChart /></div>
               <div className="col-md-4"><PieChart /></div>
-          </div>
+          </div> */}
           
-        <div className="row">
+        {/* <div className="row">
           <div className="col-12 grid-margin">
             <div className="card">
               <div className="p-3">
@@ -95,7 +95,7 @@ const MainView = () => {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
 
           {/* end content */}
         </div>

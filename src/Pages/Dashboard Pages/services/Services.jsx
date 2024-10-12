@@ -1,20 +1,41 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Header from '../../../Components/Admin Components/header/Header';
 import SideNav from '../../../Components/Admin Components/sideNav/SideNav';
 import img1 from "../../../images/Logo.png";
 import PageHeader from '../../../Components/Common/page header/PageHeader';
+import { useDeleteServiceMutation, useGetServicesQuery } from '../../../api/servicesSlice';
+import Swal from 'sweetalert2';
+import { Navigate, useNavigate } from 'react-router-dom';
 
 const Services = () => {
-    const countries = [
-        {
-          id: 1,
-          country_id: 1,
-          title: "driver",
-          image: img1,
-          description: "description",
-          price:200
-        },
-      ];
+  const { data: services, error, isLoading ,refetch } = useGetServicesQuery();
+  const navigate = useNavigate();
+  const [deleteService] = useDeleteServiceMutation();
+  useEffect(() => {
+    refetch();
+  },[]);
+  const handleDelete = async (id) => {
+    Swal.fire({
+      title: 'هل أنت متأكد؟',
+      text: "لن تتمكن من التراجع عن هذا!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'نعم، احذفها!',
+      cancelButtonText: 'إلغاء',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await deleteService(id).unwrap();
+          refetch();
+          Swal.fire('تم الحذف!', 'تم حذف الخدمة بنجاح.', 'success');
+        } catch (error) {
+          Swal.fire('خطأ!', 'حدث خطأ أثناء محاولة حذف الخدمة.', 'error');
+        }
+      }
+    });
+  };
   return (
     <div>
     <Header />
@@ -41,17 +62,17 @@ const Services = () => {
                   <hr />
                 </h3>
                 <div className="table-responsive">
-                  {/* {isLoading ? (
+                  {isLoading ? (
                           <div className="center-loader">
                               <div class="loader"></div>
                           </div>
                       ) : error ? (
                       <div>Error loading users</div> // Display error message if there is an error
-                      ) : ( */}
+                      ) : (
                   <table className="table text-center table-hover">
                     <thead className="table-dark">
                       <tr style={{ fontWeight: "bold" }}>
-                        <th>كود المستخدم</th>
+                        <th># </th>
                         <th> الاسم </th>
                         <th>الوصف</th>
                         <th>السعر</th>
@@ -60,16 +81,16 @@ const Services = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {countries.map((country) => (
-                        <tr key={country.id}>
-                          <td>{country.id} </td>{" "}
+                      {services.map((service,index) => (
+                        <tr key={service.id}>
+                          <td>{index + 1} </td>{" "}
                           {/* Tracking ID as the user ID */}
-                          <td>{country.title}</td>
-                          <td>{country.description}</td>
-                          <td>{country.price}</td>
+                          <td>{service.title}</td>
+                          <td>{service.description}</td>
+                          <td>{service.price}</td>
                           <td>
                             <img
-                              src={country.image}
+                              src={`http://127.0.0.1:8000/${service.image}`}
                               alt="user"
                               style={{
                                 width: "100px",
@@ -82,13 +103,14 @@ const Services = () => {
                             <button
                               className="btn text-success"
                               title="تعديل"
+                              onClick={() => navigate(`/admin/edit-service/${service.id}`)}
                             >
                               <i
                                 className="fa fa-edit"
                                 aria-hidden="true"
                               ></i>
                             </button>
-                            <button className="btn text-danger" title="حذف">
+                            <button className="btn text-danger" onClick={() => handleDelete(service.id)} title="حذف">
                               <i
                                 className="fa fa-trash"
                                 aria-hidden="true"
@@ -99,7 +121,7 @@ const Services = () => {
                       ))}
                     </tbody>
                   </table>
-                  {/* )} */}
+                   )}
                 </div>
               </div>
             </div>
