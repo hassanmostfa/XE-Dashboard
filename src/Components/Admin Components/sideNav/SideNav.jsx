@@ -49,16 +49,7 @@ const SideNav = () => {
               <i className="mdi mdi-bookmark-check text-success nav-profile-badge" />
             </NavLink>
           </li>
-
-          {/* Main Dashboard */}
-          <li className="nav-item">
-            <Link className="nav-link" to="/">
-              <i class="fa fa-home" aria-hidden="true"></i>
-              <span className="menu-title" style={{ fontWeight: "700" }}>
-                لوحة تحكم المشرف
-              </span>
-            </Link>
-          </li>
+          
 
           <li className="nav-item">
             <Link
