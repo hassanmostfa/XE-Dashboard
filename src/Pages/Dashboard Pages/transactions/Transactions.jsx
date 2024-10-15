@@ -59,8 +59,8 @@ const Transactions = () => {
                           {transactions.transactions.map((transaction, index) => (
                             <tr key={transaction.id}>
                               <td>{index + 1}</td>
-                              <td>{transaction.client_name}</td>
-                              <td>{transaction.service}</td>
+                              <td>{transaction.booking.client_name}</td>
+                              <td>{transaction.booking.service.title}</td>
                               <td>{transaction.amount} ريال</td>
                               <td>
                                 <span

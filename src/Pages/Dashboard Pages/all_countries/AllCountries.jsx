@@ -168,7 +168,7 @@ const AllCountries = () => {
                                   style={{
                                     width: "70px",
                                     height: "70px",
-                                    objectFit: "contain",
+                                    objectFit: "cover",
                                   }}
                                 />
                               </td>

@@ -2,8 +2,8 @@ import React, { useState } from "react";
 
 const AddCountriesForm = ({ onSubmit }) => {
   const [formData, setFormData] = useState({
-    name: "",
-    image: "",
+    name:"",
+    image:"",
   });
 
   const [error, setError] = useState({});
@@ -40,8 +40,8 @@ const AddCountriesForm = ({ onSubmit }) => {
 
       // Reset the form after submission
       setFormData({
-        name: "",
-        image: "",
+        name:"",
+        image:"",
       });
       setError({});
     }
@@ -87,7 +87,7 @@ const AddCountriesForm = ({ onSubmit }) => {
         <button
           type="button"
           className="btn btn-gradient-danger"
-          onClick={() => setFormData({ name: "", image: "" })} // Clear form on cancel
+          onClick={() => setFormData({ name:"", image:"" })} // Clear form on cancel
         >
           الغاء
         </button>
