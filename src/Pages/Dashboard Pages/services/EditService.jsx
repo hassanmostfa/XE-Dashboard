@@ -4,296 +4,303 @@ import SideNav from "../../../Components/Admin Components/sideNav/SideNav";
 import PageHeader from "../../../Components/Common/page header/PageHeader";
 import { useNavigate, useParams } from "react-router-dom";
 import { useGetCountriesQuery } from "../../../api/countriesSlice";
-import { useGetServiceByIdQuery, useUpdateServiceMutation } from "../../../api/servicesSlice";
+import {
+  useGetServiceByIdQuery,
+  useUpdateServiceMutation,
+} from "../../../api/servicesSlice";
 
 const EditService = () => {
-    const { data: countries } = useGetCountriesQuery();
-    const navigate = useNavigate();
-    const { id: serviceId } = useParams();
-    
-    const { data: service, isLoading } = useGetServiceByIdQuery(serviceId);
-    const [updateService, { isLoading: isUpdating, error: updateError }] = useUpdateServiceMutation();
-    const [formData, setFormData] = useState({
-        title: "",
-        country_id: "",
-        image: "",
-        price: "",
-        description: "",
-        feature1_title: "",
-        feature1_description: "",
-        feature2_title: "",
-        feature2_description: "",
-        feature3_title: "",
-        feature3_description: "",
-        feature4_title: "",
-        feature4_description: "",
+  const { data: countries } = useGetCountriesQuery();
+  const navigate = useNavigate();
+  const { id: serviceId } = useParams();
+  const [error, setError] = useState(null);
+  const { data: service, isLoading } = useGetServiceByIdQuery(serviceId);
+  const [updateService, { isLoading: isUpdating, error: updateError }] =
+    useUpdateServiceMutation();
+
+  const [formData, setFormData] = useState({
+    title: "",
+    country_id: "",
+    image: null,
+    price: "",
+    description: "",
+    features: [
+      { title: "", description: "" },
+      { title: "", description: "" },
+      { title: "", description: "" },
+      { title: "", description: "" },
+    ],
+  });
+
+  const [oldImage, setOldImage] = useState(null);
+
+  useEffect(() => {
+    if (service && !isLoading) {
+      setFormData({
+        title: service.title,
+        country_id: service.country_id,
+        image: null,
+        price: service.price,
+        description: service.description,
+        features: service.features.map((feature, index) => ({
+          title: feature?.title || "",
+          description: feature?.description || "",
+        })),
+      });
+      setOldImage(
+        service.image ? `http://127.0.0.1:8000/${service.image}` : null
+      );
+    }
+  }, [service, isLoading]);
+
+  const handleChange = (e) => {
+    const { name, value, files } = e.target;
+    if (files) {
+      setFormData({ ...formData, image: files[0] });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
+  };
+
+  const handleFeatureChange = (index, e) => {
+    const { name, value } = e.target;
+    const updatedFeatures = [...formData.features];
+    updatedFeatures[index][name] = value;
+    setFormData({ ...formData, features: updatedFeatures });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const serviceData = new FormData();
+
+    serviceData.append("title", formData.title);
+    serviceData.append("country_id", formData.country_id);
+    serviceData.append("price", formData.price);
+    serviceData.append("description", formData.description);
+
+    if (formData.image) {
+      serviceData.append("image", formData.image);
+    }
+
+    // Append features array
+    formData.features.forEach((feature, index) => {
+      serviceData.append(`features[${index}][title]`, feature.title);
+      serviceData.append(
+        `features[${index}][description]`,
+        feature.description
+      );
     });
 
-    useEffect(() => {
-        if (service && !isLoading) {
-            setFormData({
-                title: service.title,
-                country_id: service.country_id,
-                image: "",
-                price: service.price,
-                description: service.description,
-                feature1_title: service.feature1_title,
-                feature1_description: service.feature1_description,
-                feature2_title: service.feature2_title,
-                feature2_description: service.feature2_description,
-                feature3_title: service.feature3_title,
-                feature3_description: service.feature3_description,
-                feature4_title: service.feature4_title,
-                feature4_description: service.feature4_description,
-            });
-        }
-    }, [service, isLoading]);
+    try {
+      await updateService({
+        id: serviceId,
+        updatedService: serviceData,
+      }).unwrap();
+      navigate("/admin/services");
+    } catch (error) {
+      console.error("Failed to update service:", error);
+      setError(error);
+    }
+  };
 
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            await updateService({ id: serviceId, ...formData }).unwrap();
-            navigate("/admin/services"); // Navigate back to services list on success
-        } catch (error) {
-            console.error("Failed to update service:", error);
-            // You can set error state if you want to show error messages
-        }
-    };
-
-    return (
-        <div>
-            <Header />
-            <div className="page-body-wrapper">
-                <SideNav />
-                <div className="add_user_container">
-                    <div style={{ marginTop: "30px" }}>
-                        <PageHeader name="تعديل خدمة" icon="fa fa-edit" />
+  return (
+    <div>
+      <Header />
+      <div className="page-body-wrapper">
+        <SideNav />
+        <div className="add_user_container">
+          <div style={{ marginTop: "30px" }}>
+            <PageHeader name="تعديل خدمة" icon="fa fa-edit" />
+          </div>
+          <div className="col-12 grid-margin stretch-card content-wrapper">
+            <div className="card">
+              <div className="card-body">
+                <h4 className="card-title">
+                  <i className="mdi mdi-account-plus"></i> نموذج تعديل خدمة
+                </h4>
+                <p className="card-description">
+                  الرجاء ملء الحقول التالية والتأكد من صحة البيانات قبل التأكيد
+                </p>
+                <form
+                  className="forms-sample"
+                  onSubmit={handleSubmit}
+                  enctype="multipart/form-data"
+                >
+                  {/* Title Field */}
+                  {error?.data?.errors?.length > 0 && (
+                    <div className="alert alert-danger">
+                      {updateError.data.errors.map((error, index) => (
+                        <p key={index}>{error}</p>
+                      ))}
                     </div>
-                    <div className="col-12 grid-margin stretch-card content-wrapper">
-                        <div className="card">
-                            <div className="card-body">
-                                <h4 className="card-title">
-                                    <i className="mdi mdi-account-plus"></i> نموذج تعديل خدمة
-                                </h4>
-                                <p className="card-description">
-                                    الرجاء ملء الحقول التالية والتأكد من صحة البيانات قبل التأكيد
-                                </p>
-                                <form className="forms-sample" onSubmit={handleSubmit}>
-                                    <div className="form-group col-sm-12">
-                                        <div className="row">
-                                            <div className="col-sm-6">
-                                                <label htmlFor="title">الاسم</label>
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    id="title"
-                                                    placeholder="ادخل الاسم"
-                                                    value={formData.title}
-                                                    onChange={handleChange}
-                                                    name="title"
-                                                    required
-                                                />
-                                                {updateError && <p className="text-danger">{updateError.data?.errors.title}</p>}
-                                            </div>
-                                            <div className="col-sm-6">
-                                                <label htmlFor="price">السعر</label>
-                                                <input
-                                                    type="number"
-                                                    className="form-control"
-                                                    id="price"
-                                                    placeholder="ادخل السعر"
-                                                    value={formData.price}
-                                                    onChange={handleChange}
-                                                    name="price"
-                                                    required
-                                                />
-                                                {updateError && <p className="text-danger">{updateError.data?.errors.price}</p>}
-                                            </div>
-                                        </div>
-                                    </div>
+                  )}
+                  <div className="row">
+                    <div className="form-group col-sm-6">
+                      <label htmlFor="title">الاسم</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="title"
+                        name="title"
+                        value={formData.title}
+                        onChange={handleChange}
+                        required
+                      />
+                    </div>
 
-                                    <div className="form-group col-sm-12">
-                                        <div className="row">
-                                            <div className="col-sm-6">
-                                                <label htmlFor="image">الصورة</label>
-                                                <input
-                                                    type="file"
-                                                    className="form-control"
-                                                    id="image"
-                                                    onChange={(e) => setFormData({ ...formData, image: e.target.files[0] })}
-                                                    name="image"
-                                                />
-                                                {updateError && <p className="text-danger">{updateError.data?.errors.image}</p>}
-                                            </div>
-                                            <div className="col-sm-6">
-                                                <label htmlFor="country_id"> اختر الدولة </label>
-                                                <select
-                                                    dir="ltr"
-                                                    className="form-control form-select"
-                                                    value={formData.country_id}
-                                                    onChange={handleChange}
-                                                    name="country_id"
-                                                    required
-                                                >
-                                                    <option value="" disabled>اختر الدولة</option>
-                                                    {countries && countries.map((country) => (
-                                                        <option key={country.id} value={country.id}>
-                                                            {country.name}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                                {updateError && <p className="text-danger">{updateError.data?.errors.country_id}</p>}
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="form-group">
-                                        <label htmlFor="description">الوصف</label>
-                                        <textarea
-                                            className="form-control"
-                                            placeholder="ادخل الوصف"
-                                            onChange={handleChange}
-                                            name="description"
-                                            value={formData.description}
-                                            required
-                                        />
-                                        {updateError && <p className="text-danger">{updateError.data?.errors.description}</p>}
-                                    </div>
-                                    
-                                    <div className="row">
-                                        <div className="form-group col-sm-6">
-                                            <label htmlFor="feature1_title">الميزة 1</label>
-                                            <input
-                                                type="text"
-                                                className="form-control"
-                                                id="feature1_title"
-                                                placeholder="ادخل الميزة"
-                                                value={formData.feature1_title}
-                                                onChange={handleChange}
-                                                name="feature1_title"
-                                            />
-                                            {updateError && <p className="text-danger">{updateError.data?.errors.feature1_title}</p>}
-                                        </div>
-                                        <div className="form-group col-sm-6">
-                                            <label htmlFor="feature1_description">وصف الميزة 1</label>
-                                            <textarea
-                                                name="feature1_description"
-                                                className="form-control"
-                                                onChange={handleChange}
-                                                id="feature1_description"
-                                                value={formData.feature1_description}
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="row">
-                                        <div className="form-group col-sm-6">
-                                            <label htmlFor="feature2_title">الميزة 2</label>
-                                            <input
-                                                type="text"
-                                                className="form-control"
-                                                id="feature2_title"
-                                                placeholder="ادخل الميزة"
-                                                value={formData.feature2_title}
-                                                onChange={handleChange}
-                                                name="feature2_title"
-                                            />
-                                            {updateError && <p className="text-danger">{updateError.data?.errors.feature2_title}</p>}
-                                        </div>
-                                        <div className="form-group col-sm-6">
-                                            <label htmlFor="feature2_description">وصف الميزة 2</label>
-                                            <textarea
-                                                name="feature2_description"
-                                                className="form-control"
-                                                onChange={handleChange}
-                                                id="feature2_description"
-                                                value={formData.feature2_description}
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="row">
-                                        <div className="form-group col-sm-6">
-                                            <label htmlFor="feature3_title">الميزة 3</label>
-                                            <input
-                                                type="text"
-                                                className="form-control"
-                                                id="feature3_title"
-                                                placeholder="ادخل الميزة"
-                                                value={formData.feature3_title}
-                                                onChange={handleChange}
-                                                name="feature3_title"
-                                            />
-                                            {updateError && <p className="text-danger">{updateError.data?.errors.feature3_title}</p>}
-                                        </div>
-                                        <div className="form-group col-sm-6">
-                                            <label htmlFor="feature3_description">وصف الميزة 3</label>
-                                            <textarea
-                                                name="feature3_description"
-                                                className="form-control"
-                                                onChange={handleChange}
-                                                id="feature3_description"
-                                                value={formData.feature3_description}
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="row">
-                                        <div className="form-group col-sm-6">
-                                            <label htmlFor="feature4_title">الميزة 4</label>
-                                            <input
-                                                type="text"
-                                                className="form-control"
-                                                id="feature4_title"
-                                                placeholder="ادخل الميزة"
-                                                value={formData.feature4_title}
-                                                onChange={handleChange}
-                                                name="feature4_title"
-                                            />
-                                            {updateError && <p className="text-danger">{updateError.data?.errors.feature4_title}</p>}
-                                        </div>
-                                        <div className="form-group col-sm-6">
-                                            <label htmlFor="feature4_description">وصف الميزة 4</label>
-                                            <textarea
-                                                name="feature4_description"
-                                                className="form-control"
-                                                onChange={handleChange}
-                                                id="feature4_description"
-                                                value={formData.feature4_description}
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="d-flex justify-content-center gap-2">
-                                        <button
-                                            type="submit"
-                                            className="btn btn-gradient-primary me-2"
-                                            disabled={isUpdating}
-                                        >
-                                            {"تحديث"}
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                navigate("/admin/services");
-                                            }}
-                                            className="btn btn-gradient-danger"
-                                        >
-                                            الغاء
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
+                    {/* Price Field */}
+                    <div className="form-group col-sm-6">
+                      <label htmlFor="price">السعر</label>
+                      <input
+                        type="number"
+                        className="form-control"
+                        id="price"
+                        name="price"
+                        value={formData.price}
+                        onChange={handleChange}
+                        required
+                      />
+                      {updateError?.data?.errors?.price && (
+                        <p className="text-danger">
+                          {updateError.data.errors.price}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="row">
+                    {/* Country Field */}
+                    <div className="form-group col-sm-6">
+                      <label htmlFor="country_id">اختر الدولة</label>
+                      <select
+                        className="form-control"
+                        name="country_id"
+                        value={formData.country_id}
+                        onChange={handleChange}
+                        required
+                      >
+                        <option value="" disabled>
+                          اختر الدولة
+                        </option>
+                        {countries &&
+                          countries.map((country) => (
+                            <option key={country.id} value={country.id}>
+                              {country.name}
+                            </option>
+                          ))}
+                      </select>
+                    </div>
+                    {/* Image Upload */}
+                    <div className="form-group col-sm-6">
+                      <label htmlFor="image">الصورة</label>
+                      <input
+                        type="file"
+                        className="form-control"
+                        id="image"
+                        onChange={handleChange}
+                        name="image"
+                      />
+                      {oldImage && (
+                        <div className="mt-2">
+                          <p>الصورة الحالية:</p>
+                          <img
+                            src={oldImage}
+                            alt="Service"
+                            style={{
+                              width: "100px",
+                              height: "100px",
+                              objectFit: "cover",
+                            }}
+                          />
                         </div>
+                      )}
                     </div>
-                </div>
+                  </div>
+
+                  {/* Description Field */}
+                  <div className="form-group col-sm-12">
+                    <label htmlFor="description">الوصف</label>
+                    <textarea
+                      className="form-control"
+                      id="description"
+                      name="description"
+                      value={formData.description}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+
+                  {/* Features Fields */}
+                  {formData.features.map((feature, index) => (
+                    <div key={index} className="feature-group row">
+                      <div className="form-group col-sm-6">
+                        <label htmlFor={`feature${index}_title`}>
+                          عنوان الميزة {index + 1}
+                        </label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          id={`feature${index}_title`}
+                          name="title"
+                          value={feature.title}
+                          onChange={(e) => handleFeatureChange(index, e)}
+                          required={index === 0}
+                        />
+                      </div>
+
+                      <div className="form-group col-sm-6">
+                        <label htmlFor={`feature${index}_description`}>
+                          وصف الميزة {index + 1}
+                        </label>
+                        <textarea
+                          className="form-control"
+                          id={`feature${index}_description`}
+                          name="description"
+                          value={feature.description}
+                          onChange={(e) => handleFeatureChange(index, e)}
+                        />
+                        {updateError?.data?.errors?.[
+                          `features.${index}.description`
+                        ] && (
+                          <p className="text-danger">
+                            {
+                              updateError.data.errors[
+                                `features.${index}.description`
+                              ]
+                            }
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Submit Button */}
+                  <div className="d-flex justify-content-center gap-2">
+                    <button
+                      type="submit"
+                      className="btn btn-gradient-primary"
+                      disabled={isUpdating}
+                    >
+                      تحديث
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigate("/admin/services");
+                      }}
+                      className="btn btn-gradient-danger"
+                    >
+                      الغاء
+                    </button>
+                  </div>
+                </form>
+              </div>
             </div>
+          </div>
         </div>
-    );
+      </div>
+    </div>
+  );
 };
 
 export default EditService;

@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 
-const AddCountriesForm = ({ onSubmit }) => {
+const AddCountriesForm = ({ onSubmit ,initialData }) => {
   const [formData, setFormData] = useState({
-    name: "",
+    name: initialData?.name || "",
     image: "",
   });
 
@@ -23,7 +23,7 @@ const AddCountriesForm = ({ onSubmit }) => {
     if (!formData.name) {
       newErrors.name = "الاسم مطلوب";
     }
-    if (!formData.image) {
+    if (!formData.image && !initialData) {
       newErrors.image = "الصورة مطلوبة";
     }
 
@@ -47,8 +47,8 @@ const AddCountriesForm = ({ onSubmit }) => {
     }
   };
   return (
-    <form className="forms-sample" onSubmit={handleSubmit}>
-      <div className="form-group col-sm-12">
+    <form className="forms-sample" onSubmit={handleSubmit} enctype="multipart/form-data">
+      <div className="form-group col-sm-12 my-2">
         <div className="row">
           <div className="col-sm-6">
             <label htmlFor="exampleInputName1">الاسم</label>
@@ -64,7 +64,7 @@ const AddCountriesForm = ({ onSubmit }) => {
             {error.name && <p className="text-danger">{error.name}</p>}
           </div>
 
-          <div className="col-sm-6 ">
+          <div className="col-sm-6 my-2">
             <label htmlFor="exampleInputImage1">الصورة</label>
             <input
               type="file"
@@ -75,6 +75,23 @@ const AddCountriesForm = ({ onSubmit }) => {
               name="image"
               accept="image/*"
             />
+            {formData.image && (
+              <img
+                src={URL.createObjectURL(formData.image)}
+                alt={formData.name}
+                className="img-fluid mt-2"
+                style={{ height: "100px", width: "100px" }}
+              />
+            )}
+          {initialData && initialData.image && !formData.image && (
+            <img
+              src={`http://127.0.0.1:8000/${initialData.image}`}
+              alt={initialData.name}
+              className="img-fluid mt-2"
+              style={{ height: "100px", width: "100px" }}
+            />
+          )}
+            
             {error.image && <p className="text-danger">{error.image}</p>}
           </div>
         </div>
@@ -83,13 +100,6 @@ const AddCountriesForm = ({ onSubmit }) => {
       <div className="d-flex justify-content-center gap-2">
         <button type="submit" className="btn btn-gradient-primary me-2">
           حفظ
-        </button>
-        <button
-          type="button"
-          className="btn btn-gradient-danger"
-          onClick={() => setFormData({ name: "", image: "" })} // Clear form on cancel
-        >
-          الغاء
         </button>
       </div>
     </form>

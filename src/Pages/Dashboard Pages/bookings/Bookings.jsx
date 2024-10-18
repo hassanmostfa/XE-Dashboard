@@ -87,7 +87,7 @@ const Bookings = () => {
                           <td>{index + 1} </td>{" "}
                           {/* Tracking ID as the user ID */}
                           <td>{booking.client_name}</td>
-                          <td>{booking.service}</td>
+                          <td>{booking.service.title}</td>
                           <td>{booking.payment_status === "paid" ? <span className='badge badge-success'>Paid</span> : <span className='badge badge-warning'>Pending</span>}</td>
                           <td>{booking.booking_status === "approved" ? <span className='badge badge-success'>Done</span> : booking.booking_status == "rejected" ? <span className='badge badge-danger'>Rejected</span> : <span className='badge badge-warning'>Pending</span>}</td>
                           <td>{booking.created_at}</td>

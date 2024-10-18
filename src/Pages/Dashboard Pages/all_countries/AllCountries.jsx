@@ -19,29 +19,35 @@ const AllCountries = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [editingCountry, setEditingCountry] = useState(null);
   const { data: countries, error, isLoading, refetch } = useGetCountriesQuery();
-  
+
   const [createCountry] = useCreateCountryMutation();
   const [updateCountry] = useUpdateCountryMutation();
   const [deleteCountry] = useDeleteCountryMutation();
 
   const handleFormSubmit = async (formData) => {
     const formDataToSend = new FormData();
+
     formDataToSend.append("name", formData.name);
-    formDataToSend.append("image", formData.image);
+    if (formData.image && formData.image.size > 0) {
+      formDataToSend.append("image", formData.image);
+    }
 
     try {
       if (editingCountry) {
-        // Update country if editing
-        console.log(formDataToSend.get("name"));
-        
+        // Update country
         await updateCountry({
-          id: editingCountry.id, // Country ID for update
-          formData: formDataToSend,
+          id: editingCountry.id,
+          updatedCountry: formDataToSend,
         }).unwrap();
-        setEditingCountry(null); // Reset editing state
+        refetch();
+        setShowPopup(false); // Reset editing state
       } else {
         // Create a new country
-        await createCountry(formDataToSend).unwrap();
+        try{
+          await createCountry(formDataToSend).unwrap();
+        } catch (error){
+          console.log(error);
+        }
       }
       setShowPopup(false); // Close the form
       refetch(); // Refresh the data
@@ -50,13 +56,8 @@ const AllCountries = () => {
     }
   };
 
-  const openPopup = () => setShowPopup(true);
-  const closePopup = () => {
-    setShowPopup(false);
-    setEditingCountry(null); // Clear editing state on close
-  };
-
   const handleEditCountry = (country) => {
+
     setEditingCountry(country); // Set country to be edited
     setShowPopup(true);
   };
@@ -97,28 +98,28 @@ const AllCountries = () => {
           <div className="add-country">
             <button
               className="btn add-btn btn-gradient-primary"
-              onClick={openPopup}
+              onClick={() => setShowPopup(true)}
             >
-              <i className="fa fa-plus" aria-hidden="true"></i>
+              <i className="fa fa-plus" aria-hidden="true"></i> Add Country
             </button>
           </div>
           {showPopup && (
             <div className="popup-overlay">
               <div className="popup-content">
-                <button className="close-btn" onClick={closePopup}>
+                <button
+                  className="close-btn"
+                  onClick={() => setShowPopup(false)}
+                >
                   &times;
                 </button>
-                <h4 className="card-title">
+                <h4 className="card-title mb-4">
                   {editingCountry ? "تعديل الدولة" : "نموذج اضافة بلد جديد"}
-                </h4>
-                <p className="card-description">
-                  الرجاء ملء الحقول التالية والتأكد من صحة البيانات قبل التاكيد
-                </p>
 
-                {/* Pass initialData for editing */}
+                </h4>
                 <AddCountriesForm
                   onSubmit={handleFormSubmit}
-                  initialData={editingCountry} // Pass country data for editing
+                  initialData={editingCountry} // Pass country data if editing
+                  isEditMode={editingCountry !== null}
                 />
               </div>
             </div>
@@ -185,7 +186,9 @@ const AllCountries = () => {
                                 </button>
                                 <button
                                   className="btn text-danger"
-                                  onClick={() => handleDeleteCountry(country.id)}
+                                  onClick={() =>
+                                    handleDeleteCountry(country.id)
+                                  }
                                   title="حذف"
                                 >
                                   <i
