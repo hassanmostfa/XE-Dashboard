@@ -8,35 +8,63 @@ import { useGetCountriesQuery } from "../../../api/countriesSlice";
 
 const AddService = () => {
   const navigate = useNavigate();
-  const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     title: "",
     country_id: "",
-    image: "",
+    image: null,
     price: "",
     description: "",
-    feature1_title: "",
-    feature1_description: "",
-    feature2_title: "",
-    feature2_description: "",
-    feature3_title: "",
-    feature3_description: "",
-    feature4_title: "",
-    feature4_description: "",
+    features: [
+      { title: "", description: "" },
+      { title: "", description: "" },
+      { title: "", description: "" },
+      { title: "", description: "" }
+    ]
   });
-  const [createService,isSuccess ] = useCreateServiceMutation();
-  const { data: countries, isLoading, refetch } = useGetCountriesQuery();
+  const [imagePreview, setImagePreview] = useState(null);
+  const [createService,  {isSuccess, error} ] = useCreateServiceMutation();
+  
+  const { data: countries, isLoading } = useGetCountriesQuery();
+  
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (e.target.type === 'file') {
+      const file = e.target.files[0];
+      setFormData({ ...formData, image: file });
+
+      // Image Preview
+      const reader = new FileReader();
+      reader.onload = () => setImagePreview(reader.result);
+      reader.readAsDataURL(file);
+    } else if (e.target.name.startsWith("feature")) {
+      const index = Number(e.target.name.split("_")[1]) - 1;
+      const key = e.target.name.includes("title") ? "title" : "description";
+      const updatedFeatures = [...formData.features];
+      updatedFeatures[index][key] = e.target.value;
+      setFormData({ ...formData, features: updatedFeatures });
+    } else {
+      setFormData({ ...formData, [e.target.name]: e.target.value });
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await createService(formData);
-    if (isSuccess) {
-      navigate("/admin/services");
-    }
+  
+    const formDataToSend = new FormData();
+    Object.keys(formData).forEach((key) => {
+      if (key === "features") {
+        formData.features.forEach((feature, index) => {
+          formDataToSend.append(`features[${index}][title]`, feature.title);
+          formDataToSend.append(`features[${index}][description]`, feature.description);
+        });
+      } else {
+        formDataToSend.append(key, formData[key]);
+      }
+    });
+  
+    await createService(formDataToSend).unwrap();
+    
   };
+
   return (
     <div>
       <Header />
@@ -53,37 +81,35 @@ const AddService = () => {
                   <i className="mdi mdi-account-plus"></i> نموذج اضافة خدمة جديد
                 </h4>
                 <p className="card-description">
-                  {" "}
-                  الرجاء ملء الحقول التالية والتاكد من صحة البيانات قبل التاكيد{" "}
+                  الرجاء ملء الحقول التالية والتاكد من صحة البيانات قبل التاكيد
                 </p>
+              {error && <div className="alert alert-danger">{error.message}</div>}
                 <form className="forms-sample" onSubmit={handleSubmit}>
                   <div className="form-group col-sm-12">
                     <div className="row">
                       <div className="col-sm-6">
-                        <label htmlFor="exampleInputName1">الاسم</label>
+                        <label htmlFor="title">الاسم</label>
                         <input
                           type="text"
                           className="form-control"
-                          id="exampleInputName1"
+                          id="title"
                           placeholder="ادخل الاسم"
-                          value={formData.name}
+                          value={formData.title}
                           onChange={handleChange}
                           name="title"
                         />
-                        {error && <p className="text-danger">{error.name}</p>}
                       </div>
                       <div className="col-sm-6">
-                        <label htmlFor="exampleInputName1">السعر</label>
+                        <label htmlFor="price">السعر</label>
                         <input
                           type="number"
                           className="form-control"
-                          id="exampleInputName1"
+                          id="price"
                           placeholder="ادخل السعر"
                           value={formData.price}
                           onChange={handleChange}
                           name="price"
                         />
-                        {error && <p className="text-danger">{error.price}</p>}
                       </div>
                     </div>
                   </div>
@@ -91,21 +117,18 @@ const AddService = () => {
                   <div className="form-group col-sm-12">
                     <div className="row">
                       <div className="col-sm-6">
-                        <label htmlFor="exampleInputEmail3">الصورة</label>
+                        <label htmlFor="image">الصورة</label>
                         <input
                           type="file"
                           className="form-control"
-                          id="exampleInputEmail3"
-                          placeholder="اختر الصورة"
-                          value={formData.image}
+                          id="image"
                           onChange={handleChange}
                           name="image"
                         />
-
-                        {error && <p className="text-danger">{error.image}</p>}
+                        {imagePreview && <img src={imagePreview} alt="Preview" style={{ width: '100px', marginTop: '10px' }} />}
                       </div>
                       <div className="col-sm-6">
-                        <label htmlFor="exampleInputName1"> اختر الدولة </label>
+                        <label htmlFor="country_id"> اختر الدولة </label>
                         <select
                           dir="ltr"
                           className="form-control form-select"
@@ -113,171 +136,66 @@ const AddService = () => {
                           onChange={handleChange}
                           name="country_id"
                         >
-                          <option value="" disabled selected>
+                          <option value="" disabled>
                             اختر الدولة
                           </option>
-                          {countries && (
-                            <>
-                              {countries.map((country) => (
-                                <option
-                                  key={country.id}
-                                  value={country.id}
-                                >
-                                  {country.name}
-                                </option>
-                              ))}
-                            </>
-                          )}  
-                          
-                          
+                          {countries &&
+                            countries.map((country) => (
+                              <option key={country.id} value={country.id}>
+                                {country.name}
+                              </option>
+                            ))}
                         </select>
-                        {error && (
-                          <p className="text-danger">{error.country}</p>
-                        )}
                       </div>
                     </div>
                   </div>
 
                   <div className="form-group">
-                    <label htmlFor="exampleInputPassword4">الوصف</label>
+                    <label htmlFor="description">الوصف</label>
                     <textarea
                       className="form-control"
                       placeholder="ادخل الوصف"
+                      value={formData.description}
                       onChange={handleChange}
                       name="description"
-                    >
-                      {formData.description}
-                    </textarea>
-                    {error && (
-                      <p className="text-danger">{error.description}</p>
-                    )}
+                    />
                   </div>
-                  <div className="row">
-                    <div className="form-group col-sm-6">
-                        <div className="row">
-                        <div className="col-sm-12">
-                            <label htmlFor="exampleInputName1">الميزة 1</label>
-                            <input
-                            type="text"
-                            className="form-control"
-                            id="exampleInputName1"
-                            placeholder="ادخل الميزة"
-                            value={formData.feature1_title}
-                            onChange={handleChange}
-                            name="feature1_title"
-                            />
-                            {error && (
-                            <p className="text-danger">{error.feature1_title}</p>
-                            )}
-                        </div>
-                        <div className="col-sm-12 mt-3">
-                            <label htmlFor="exampleInputName1"> وصف الميزة 1</label>
-                            <textarea
-                            name="feature1_description"
-                            className="form-control"
-                            onChange={handleChange}
-                            id=""
-                            >{formData.feature1_description}</textarea>
-                        </div>
-                        </div>
+
+                  {formData.features.map((feature, index) => (
+                    <div key={index} className="form-group row">
+                      <div className="col-sm-6">
+                        <label htmlFor={`feature_title_${index + 1}`}>الميزة {index + 1}</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          id={`feature_title_${index + 1}`}
+                          placeholder="ادخل الميزة"
+                          value={feature.title}
+                          onChange={handleChange}
+                          name={`feature_${index + 1}_title`}
+                        />
+                      </div>
+                      <div className="col-sm-6">
+                        <label htmlFor={`feature_desc_${index + 1}`}>وصف الميزة {index + 1}</label>
+                        <textarea
+                          className="form-control"
+                          id={`feature_desc_${index + 1}`}
+                          placeholder="ادخل وصف الميزة"
+                          value={feature.description}
+                          onChange={handleChange}
+                          name={`feature_${index + 1}_description`}
+                        />
+                      </div>
                     </div>
-                    <div className="form-group col-sm-6 ">
-                        <div className="row">
-                        <div className="col-sm-12">
-                            <label htmlFor="exampleInputName1">الميزة 2</label>
-                            <input
-                            type="text"
-                            className="form-control"
-                            id="exampleInputName1"
-                            placeholder="ادخل الميزة"
-                            value={formData.feature2_title}
-                            onChange={handleChange}
-                            name="feature2_title"
-                            />
-                            {error && (
-                            <p className="text-danger">{error.feature2_title}</p>
-                            )}
-                        </div>
-                        <div className="col-sm-12 mt-3">
-                            <label htmlFor="exampleInputName1"> وصف الميزة 2</label>
-                            <textarea
-                            name="feature2_description"
-                            className="form-control"
-                            onChange={handleChange}
-                            id=""
-                            >{formData.feature2_description}</textarea>
-                        </div>
-                        </div>
-                    </div>
-                    <div className="form-group col-sm-6 ">
-                        <div className="row">
-                        <div className="col-sm-12">
-                            <label htmlFor="exampleInputName1">الميزة 3</label>
-                            <input
-                            type="text"
-                            className="form-control"
-                            id="exampleInputName1"
-                            placeholder="ادخل الميزة"
-                            value={formData.feature3_title}
-                            onChange={handleChange}
-                            name="feature3_title"
-                            />
-                            {error && (
-                            <p className="text-danger">{error.feature3_title}</p>
-                            )}
-                        </div>
-                        <div className="col-sm-12 mt-3">
-                            <label htmlFor="exampleInputName1"> وصف الميزة 3</label>
-                            <textarea
-                            name="feature3_description"
-                            className="form-control"
-                            onChange={handleChange}
-                            id=""
-                            >{formData.feature3_description}</textarea>
-                        </div>
-                        </div>
-                    </div>
-                    <div className="form-group col-md-6">
-                        <div className="row">
-                        <div className="col-sm-12">
-                            <label htmlFor="exampleInputName1">الميزة 4</label>
-                            <input
-                            type="text"
-                            className="form-control"
-                            id="exampleInputName1"
-                            placeholder="ادخل الميزة"
-                            value={formData.feature4_title}
-                            onChange={handleChange}
-                            name="feature4_title"
-                            />
-                            {error && (
-                            <p className="text-danger">{error.feature4_title}</p>
-                            )}
-                        </div>
-                        <div className="col-sm-12 mt-3">
-                            <label htmlFor="exampleInputName1"> وصف الميزة 4</label>
-                            <textarea
-                            name="feature4_description"
-                            className="form-control "
-                            onChange={handleChange}
-                            id=""
-                            >{formData.feature4_description}</textarea>
-                        </div>
-                        </div>
-                    </div>
-                  </div>
+                  ))}
+
                   <div className="d-flex justify-content-center gap-2">
-                    <button
-                      type="submit"
-                      className="btn btn-gradient-primary me-2"
-                    >
+                    <button type="submit" className="btn btn-gradient-primary me-2">
                       {"انشاء"}
                     </button>
                     <button
                       type="button"
-                      onClick={() => {
-                        navigate("/admin/services");
-                      }}
+                      onClick={() => navigate("/admin/services")}
                       className="btn btn-gradient-danger"
                     >
                       الغاء

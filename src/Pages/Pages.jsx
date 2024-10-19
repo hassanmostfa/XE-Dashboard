@@ -25,19 +25,19 @@ const pages = () => {
             path="/"
             element={
               <ProtectedRoute>
-                <Dashboard />
+                <AllCountries />
               </ProtectedRoute>
             }
           />
-          <Route
+          {/* <Route
             path="/admin/add-user"
             element={
               <ProtectedRoute>
                 <AddUser />
               </ProtectedRoute>
             }
-          />
-          <Route path="/admin/all-users" element={<ProtectedRoute><AllUsers /></ProtectedRoute>} />
+          /> */}
+          {/* <Route path="/admin/all-users" element={<ProtectedRoute><AllUsers /></ProtectedRoute>} /> */}
           <Route path="/admin/all-countries" element={<ProtectedRoute><AllCountries /></ProtectedRoute>} />
           <Route path="/admin/services" element={<ProtectedRoute><Services /></ProtectedRoute>} />
           <Route path="/admin/add-service" element={<ProtectedRoute><AddService /></ProtectedRoute>} />

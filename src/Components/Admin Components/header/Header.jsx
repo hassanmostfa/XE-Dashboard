@@ -22,6 +22,7 @@ const Header = () => {
             className="navbar-toggler navbar-toggler align-self-center"
             type="button"
             data-toggle="minimize"
+            onClick={() => document.body.classList.toggle("sidebar-icon-only")}
           >
             <span className="mdi mdi-menu" />
           </button>
