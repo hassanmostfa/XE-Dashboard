@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Header from "../../../Components/Admin Components/header/Header";
 import SideNav from "../../../Components/Admin Components/sideNav/SideNav";
 import PageHeader from "../../../Components/Common/page header/PageHeader";
@@ -11,7 +11,6 @@ const CreateBooking = () => {
   const navigate = useNavigate();
   const { data: services, isLoading } = useGetServicesQuery();
   console.log(services);
-
   const [createBooking] = useCreateBookingMutation(); // API hook
   const paymentGates = [
     { id: 1, name: "paypal" },
@@ -29,6 +28,9 @@ const CreateBooking = () => {
     payment_gate: "",
   });
   const [error, setError] = useState({});
+  useEffect(() => {
+    document.body.classList.remove("sidebar-icon-only") // Close sidebar on page change
+  }, []);
   if (isLoading) {
     return (
       <div className="center-main-loader">
@@ -47,19 +49,13 @@ const CreateBooking = () => {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Validation
-    if (formData.client_name === "") {
-      setError({ ...error, client_name: "Client name is required" });
-      return;
-    }
-
     try {
       await createBooking(formData).unwrap(); // Send data to the backend
       Swal.fire("تم!", "تم اضافة الحجز بنجاح.", "success");
       navigate("/admin/bookings"); // Navigate to bookings page on success
     } catch (err) {
       console.error("Failed to create booking:", err);
+      setError(err);
       Swal.fire("خطأ!", "حدث خطأ أثناء محاولة اضافة الحجز.", "error");
     }
   };
@@ -83,6 +79,13 @@ const CreateBooking = () => {
                     التأكيد.
                   </p>
                   <form className="forms-sample" onSubmit={handleSubmit}>
+                  {error?.data?.errors?.length > 0 && (
+                    <div className="alert alert-danger">
+                      {error.data.errors.map((error, index) => (
+                        <p key={index}>{error}</p>
+                      ))}
+                    </div>
+                  )}
                     <div className="row">
                       <div className="form-group col-md-6">
                         <label htmlFor="client_name">الاسم</label>

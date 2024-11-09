@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Header from '../../../Components/Admin Components/header/Header';
 import SideNav from '../../../Components/Admin Components/sideNav/SideNav';
 import PageHeader from '../../../Components/Common/page header/PageHeader';
@@ -19,7 +19,9 @@ const Messages = () => {
     setShowPopup(false); // Hide the popup
     setSelectedMessage(null); // Clear selected message
   };
-
+  useEffect(() => {
+    document.body.classList.remove("sidebar-icon-only") // Close sidebar on page change
+  }, []);
   const handleDelete = async (messageId) => {
     Swal.fire({
       title: "هل أنت متأكد؟",

@@ -87,7 +87,7 @@ body {
   }
 
 .add-country .add-btn{
-    position: absolute;
+    position: fixed;
     bottom: 7%;
     left: 4%;
     border-radius: 20px;

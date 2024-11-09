@@ -48,11 +48,13 @@ const EditService = () => {
         })),
       });
       setOldImage(
-        service.image ? `http://127.0.0.1:8000/${service.image}` : null
+        service.image ? `https://xealkhalej-backend.alwajez.com/${service.image}` : null
       );
     }
   }, [service, isLoading]);
-
+  useEffect(() => {
+    document.body.classList.remove("sidebar-icon-only") // Close sidebar on page change
+  }, []);
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     if (files) {

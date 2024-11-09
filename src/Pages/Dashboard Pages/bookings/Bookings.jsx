@@ -12,6 +12,9 @@ const Bookings = () => {
   const [deleteBooking] = useDeleteBookingMutation();
   const navigate = useNavigate();
   useEffect(() => {
+    document.body.classList.remove("sidebar-icon-only") // Close sidebar on page change
+  }, []);
+  useEffect(() => {
     refetch();
   }, [refetch]);
   const handleDelete = async (id) => {
@@ -36,6 +39,7 @@ const Bookings = () => {
       }
     });
   }
+
   return (
     <div>
     <Header />
@@ -88,9 +92,9 @@ const Bookings = () => {
                           {/* Tracking ID as the user ID */}
                           <td>{booking.client_name}</td>
                           <td>{booking.service.title}</td>
-                          <td>{booking.payment_status === "paid" ? <span className='badge badge-success'>Paid</span> : <span className='badge badge-warning'>Pending</span>}</td>
-                          <td>{booking.booking_status === "approved" ? <span className='badge badge-success'>Done</span> : booking.booking_status == "rejected" ? <span className='badge badge-danger'>Rejected</span> : <span className='badge badge-warning'>Pending</span>}</td>
-                          <td>{booking.created_at}</td>
+                          <td>{booking.payment_status === "paid" ? <span className='badge badge-success'>تم الدفع</span> : <span className='badge badge-warning'>انتظار</span>}</td>
+                          <td>{booking.booking_status === "approved" ? <span className='badge badge-success'>تمت</span> : booking.booking_status == "rejected" ? <span className='badge badge-danger'>مرفوضة</span> : <span className='badge badge-warning'>انتظار</span>}</td>
+                          <td>{new Date(booking.created_at).toLocaleString('en')}</td>
                           
                           <td>
                             <button

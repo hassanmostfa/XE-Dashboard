@@ -15,6 +15,9 @@ import Transactions from "./Dashboard Pages/transactions/Transactions";
 import ProtectedRoute from "../Components/protectedRoute/ProtectedRoute";
 import EditService from "./Dashboard Pages/services/EditService";
 import EditBooking from "./Dashboard Pages/bookings/EditBooking";
+import Faqs from "./Dashboard Pages/faqs/Faqs";
+import AddFaq from "./Dashboard Pages/faqs/AddFaq";
+import EditFaq from "./Dashboard Pages/faqs/EditFaq";
 const pages = () => {
   return (
     <div className="pages">
@@ -47,6 +50,10 @@ const pages = () => {
           <Route path="/admin/add-booking" element={<ProtectedRoute><AddBooking /></ProtectedRoute>} />
           <Route path="/admin/edit-booking/:id" element={<ProtectedRoute><EditBooking /></ProtectedRoute>} />
           <Route path="/admin/transactions" element={<ProtectedRoute><Transactions /></ProtectedRoute>} />
+          <Route path="/admin/faqs" element={<ProtectedRoute><Faqs /></ProtectedRoute>} />
+          <Route path="/admin/add-faq" element={<ProtectedRoute><AddFaq /></ProtectedRoute>} />
+          <Route path="/admin/edit-faq/:id" element={<ProtectedRoute><EditFaq/></ProtectedRoute>} />
+          
         </Routes>
       </BrowserRouter>
     </div>

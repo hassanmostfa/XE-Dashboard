@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import "./header.css";
 import adminImage from "../../../images/admin-photo.png";
 import logo from "../../../images/Logo.png";
 const Header = () => {
+  const [sidebarVisible, setSidebarVisible] = useState(true);
   let name = JSON.parse(localStorage.getItem("user"))?.name || "Admin";
 
   // Logout Function
@@ -14,15 +15,19 @@ const Header = () => {
     window.location.reload();
     window.location.href = "/login";
   };
+
+  const toggleSidebar = () => {
+    setSidebarVisible(!sidebarVisible);
+    document.body.classList.toggle("sidebar-icon-only", !sidebarVisible);
+  };
   return (
     <div>
       <nav className="navbar default-layout-navbar  col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
         <div className="navbar-menu-wrapper w-100 d-flex align-items-center justify-content-between">
-          <button
+        <button
             className="navbar-toggler navbar-toggler align-self-center"
             type="button"
-            data-toggle="minimize"
-            onClick={() => document.body.classList.toggle("sidebar-icon-only")}
+            onClick={toggleSidebar}
           >
             <span className="mdi mdi-menu" />
           </button>
@@ -37,7 +42,7 @@ const Header = () => {
             </li>
 
             {/* message dropdown */}
-            <li className="nav-item dropdown">
+            {/* <li className="nav-item dropdown">
               <a
                 className="nav-link count-indicator dropdown-toggle"
                 id="messageDropdown"
@@ -69,11 +74,11 @@ const Header = () => {
                 <div className="dropdown-divider" />
                 <h6 className="p-3 mb-0 text-center">4 رسائل جديدة</h6>
               </div>
-            </li>
+            </li> */}
             {/* message dropdown */}
 
             {/* notification dropdown */}
-            <li className="nav-item dropdown">
+            {/* <li className="nav-item dropdown">
               <a
                 className="nav-link count-indicator dropdown-toggle"
                 id="notificationDropdown"
@@ -112,7 +117,7 @@ const Header = () => {
                 <div className="dropdown-divider" />
                 <h6 className="p-3 mb-0 text-center">شاهد كل الاشعارات</h6>
               </div>
-            </li>
+            </li> */}
             {/* notification dropdown */}
           </ul>
           <button
@@ -128,5 +133,14 @@ const Header = () => {
     </div>
   );
 };
-
+// Fullscreen toggle function
+const toggleFullScreen = () => {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen();
+  } else {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    }
+  }
+};
 export default Header;

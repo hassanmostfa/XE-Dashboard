@@ -6,6 +6,7 @@ import servicesApi from "../api/servicesSlice";
 import { messageApi } from "../api/messageSlice";
 import { transactionsApi } from "../api/transactionsSlice";
 import { bookingsApi } from "../api/bookingSlice";
+import { faqApi } from "../api/faqSlice";
 // import { userApi, authReducer } from './userSlice';
 
 export const store = configureStore({
@@ -16,6 +17,7 @@ export const store = configureStore({
     [messageApi.reducerPath]: messageApi.reducer,
     [transactionsApi.reducerPath]: transactionsApi.reducer,
     [bookingsApi.reducerPath]: bookingsApi.reducer,
+    [faqApi.reducerPath]:faqApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -24,7 +26,8 @@ export const store = configureStore({
       servicesApi.middleware,
       messageApi.middleware,
       transactionsApi.middleware,
-      bookingsApi.middleware
+      bookingsApi.middleware,
+      faqApi.middleware
     ),
 });
 

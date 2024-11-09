@@ -13,7 +13,9 @@ const Services = () => {
   const [deleteService] = useDeleteServiceMutation();
   useEffect(() => {
     refetch();
+    document.body.classList.remove("sidebar-icon-only") // Close sidebar on page change
   },[]);
+
   const handleDelete = async (id) => {
     Swal.fire({
       title: 'هل أنت متأكد؟',
@@ -90,12 +92,12 @@ const Services = () => {
                           <td>{service.price}</td>
                           <td>
                             <img
-                              src={`http://127.0.0.1:8000/${service.image}`}
+                              src={`https://xealkhalej-backend.alwajez.com/${service.image}`}
                               alt="user"
                               style={{
                                 width: "100px",
                                 height: "100px",
-                                objectFit: "contain",
+                                objectFit: "cover",
                               }}
                             />
                           </td>

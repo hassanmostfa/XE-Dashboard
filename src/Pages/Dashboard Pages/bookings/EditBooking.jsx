@@ -84,6 +84,7 @@ const EditBooking = () => {
       navigate("/admin/bookings");
     } catch (err) {
       console.error("Failed to update booking:", err);
+      setError(err);
       Swal.fire("خطأ!", "حدث خطأ أثناء محاولة تحديث الحجز.", "error");
     }
   };
@@ -103,6 +104,13 @@ const EditBooking = () => {
                 <div className="card-body">
                   <h4 className="card-title">نموذج تعديل الحجز</h4>
                   <form className="forms-sample" onSubmit={handleSubmit}>
+                  {error?.data?.errors?.length > 0 && (
+                    <div className="alert alert-danger">
+                      {error.data.errors.map((error, index) => (
+                        <p key={index}>{error}</p>
+                      ))}
+                    </div>
+                  )}
                     <div className="row">
                       <div className="form-group col-md-6">
                         <label htmlFor="client_name">الاسم</label>

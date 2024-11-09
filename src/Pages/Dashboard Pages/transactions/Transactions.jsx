@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Header from '../../../Components/Admin Components/header/Header';
 import SideNav from '../../../Components/Admin Components/sideNav/SideNav';
 import PageHeader from '../../../Components/Common/page header/PageHeader';
@@ -8,7 +8,9 @@ const Transactions = () => {
   // Sample transactions data
   const { data: transactions, error, isLoading } = useGetTransactionsQuery();
   console.log(transactions);
-  
+  useEffect(() => {
+    document.body.classList.remove("sidebar-icon-only") // Close sidebar on page change
+  }, []);
   return (
     <div>
       <Header />
@@ -70,10 +72,10 @@ const Transactions = () => {
                                       : 'badge-warning'
                                   }`}
                                 >
-                                  {transaction.payment_status}
+                                  {transaction.payment_status == 'success' ? "ناجحة" : "فاشلة"}
                                 </span>
                               </td>
-                              <td>{transaction.created_at}</td>
+                              <td>{new Date(transaction.created_at).toLocaleDateString('en')}</td>
                             </tr>
                           ))}
                         </tbody>

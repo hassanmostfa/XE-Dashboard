@@ -48,9 +48,9 @@ const AddCountriesForm = ({ onSubmit ,initialData }) => {
   };
   return (
     <form className="forms-sample" onSubmit={handleSubmit} enctype="multipart/form-data">
-      <div className="form-group col-sm-12 my-2">
+      <div className="form-group col-sm-12 ">
         <div className="row">
-          <div className="col-sm-6">
+          <div className="col-sm-6 my-2">
             <label htmlFor="exampleInputName1">الاسم</label>
             <input
               type="text"
@@ -85,7 +85,7 @@ const AddCountriesForm = ({ onSubmit ,initialData }) => {
             )}
           {initialData && initialData.image && !formData.image && (
             <img
-              src={`http://127.0.0.1:8000/${initialData.image}`}
+              src={`https://xealkhalej-backend.alwajez.com/${initialData.image}`}
               alt={initialData.name}
               className="img-fluid mt-2"
               style={{ height: "100px", width: "100px" }}

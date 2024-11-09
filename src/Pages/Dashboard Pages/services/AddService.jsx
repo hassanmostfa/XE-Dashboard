@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Header from "../../../Components/Admin Components/header/Header";
 import SideNav from "../../../Components/Admin Components/sideNav/SideNav";
 import PageHeader from "../../../Components/Common/page header/PageHeader";
@@ -22,10 +22,12 @@ const AddService = () => {
     ]
   });
   const [imagePreview, setImagePreview] = useState(null);
-  const [createService,  {isSuccess, error} ] = useCreateServiceMutation();
-  
+  const [createService,  {isSuccess, error:createError} ] = useCreateServiceMutation();
+  const [error , setError] = useState({})
   const { data: countries, isLoading } = useGetCountriesQuery();
-  
+  useEffect(() => {
+    document.body.classList.remove("sidebar-icon-only") // Close sidebar on page change
+  }, []);
   const handleChange = (e) => {
     if (e.target.type === 'file') {
       const file = e.target.files[0];
@@ -60,8 +62,12 @@ const AddService = () => {
         formDataToSend.append(key, formData[key]);
       }
     });
-  
-    await createService(formDataToSend).unwrap();
+    try{
+      await createService(formDataToSend).unwrap();
+      navigate("/admin/services");
+    }catch(err){
+      setError(err)
+    }
     
   };
 
@@ -83,7 +89,16 @@ const AddService = () => {
                 <p className="card-description">
                   الرجاء ملء الحقول التالية والتاكد من صحة البيانات قبل التاكيد
                 </p>
-              {error && <div className="alert alert-danger">{error.message}</div>}
+                {error?.data?.errors?.length > 0 && (
+                  <>
+                  
+                    {error.data.errors.map((error, index) => (
+                    <div className="alert alert-danger">
+                        <p key={index}>{error}</p>
+                        </div>
+                    ))}
+                  </>
+                  )}
                 <form className="forms-sample" onSubmit={handleSubmit}>
                   <div className="form-group col-sm-12">
                     <div className="row">

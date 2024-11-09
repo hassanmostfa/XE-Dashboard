@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Header from "../../../Components/Admin Components/header/Header";
 import SideNav from "../../../Components/Admin Components/sideNav/SideNav";
 import PageHeader from "../../../Components/Common/page header/PageHeader";
 import img1 from "../../../images/Logo.png";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import AddCountriesForm from "./AddCountriesForm";
 import Swal from "sweetalert2";
 import "./countries.css";
@@ -24,6 +24,11 @@ const AllCountries = () => {
   const [updateCountry] = useUpdateCountryMutation();
   const [deleteCountry] = useDeleteCountryMutation();
 
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const location = useLocation();
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
   const handleFormSubmit = async (formData) => {
     const formDataToSend = new FormData();
 
@@ -85,12 +90,14 @@ const AllCountries = () => {
       }
     });
   };
-
+  useEffect(() => {
+    document.body.classList.remove("sidebar-icon-only") // Close sidebar on page change
+  }, []);
   return (
     <div>
       <Header />
       <div className="page-body-wrapper">
-        <SideNav />
+        <SideNav isSidebarOpen={isSidebarOpen} />
         <div className="add_user_container">
           <div style={{ marginTop: "30px" }}>
             <PageHeader name="كل البلاد" icon="fa fa-globe" />
@@ -100,7 +107,8 @@ const AllCountries = () => {
               className="btn add-btn btn-gradient-primary"
               onClick={() => setShowPopup(true)}
             >
-              <i className="fa fa-plus" aria-hidden="true"></i> Add Country
+              اضافة بلد جديد{"  "}
+              <i className="fa fa-plus" aria-hidden="true"></i> 
             </button>
           </div>
           {showPopup && (
@@ -164,12 +172,12 @@ const AllCountries = () => {
                               <td>{country.name}</td>
                               <td>
                                 <img
-                                  src={`http://127.0.0.1:8000/${country.image}`}
+                                  src={`https://xealkhalej-backend.alwajez.com/${country.image}`}
                                   alt="country"
                                   style={{
                                     width: "70px",
                                     height: "70px",
-                                    objectFit: "contain",
+                                    objectFit: "cover",
                                   }}
                                 />
                               </td>

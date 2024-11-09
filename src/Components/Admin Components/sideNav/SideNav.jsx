@@ -1,16 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import "./sideNav.css";
 import logo from "../../../images/Logo.png";
 import userImage from "../../../images/user-photo.jpg";
-const SideNav = () => {
+const SideNav = ({ isSidebarOpen }) => {
   const navigate = useNavigate();
-  const handleLogout=() => {
+  // const [isSidebarOpen, setIsSidebarOpen] = useState(true); // State to manage sidebar visibility
+
+  const handleLogout = () => {
     localStorage.clear();
-  }
+  };
+
   return (
     <div>
-      <nav className="sidebar sidebar-offcanvas" id="sidebar">
+      <nav className={isSidebarOpen ? "sidebar" : "hidden sidebar"} id="sidebar">
         <ul className="nav">
           <li className="nav-item nav-profile mt-2">
             <NavLink className="text-center navbar-brand-wrapper d-flex align-items-center justify-content-start">
@@ -29,25 +32,7 @@ const SideNav = () => {
                 />
               </Link>
             </NavLink>
-            <NavLink
-              to="#"
-              className="nav-link d-flex align-items-center  profile-toggle  justify-content-center gap-2"
-            >
-              <div className="nav-profile-image">
-                <img src={userImage} alt="profile" />
-                <span className="login-status online" />
-                {/*change to offline or busy as needed*/}
-              </div>
-              <div className="nav-profile-text d-flex flex-column">
-                <span className="font-weight-bold mb-2 user_name">
-                  حسن الشيات
-                </span>
-                <span className="text-secondary text-small user_role">
-                  ادمن
-                </span>
-              </div>
-              <i className="mdi mdi-bookmark-check text-success nav-profile-badge" />
-            </NavLink>
+           
           </li>
           
 
@@ -136,6 +121,38 @@ const SideNav = () => {
                 <li className="nav-item">
                   <Link className="nav-link" to="/admin/add-booking">
                      اضافة حجز
+                  </Link>
+                </li>
+
+              </ul>
+            </div>
+          </li>
+          <li className="nav-item">
+            <Link
+              className="nav-link justify-content-between"
+              data-bs-toggle="collapse"
+              to="#faq"
+              aria-expanded="false"
+              aria-controls="ui-basic"
+            >
+              <div>
+                <i class="fa fa-book" aria-hidden="true" onClick={() => navigate("/admin/faqs")}></i>
+                <span className="menu-title" style={{ fontWeight: "700" }}>
+                  الاسئلة الشائعة
+                </span>
+              </div>
+              <i className="menu-arrow" style={{ marginRight: "75px" }} />
+            </Link>
+            <div className="collapse" id="faq">
+              <ul className="nav flex-column sub-menu">
+                <li className="nav-item">
+                  <Link className="nav-link" to="/admin/faqs">
+                    كل الاسئلة
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/admin/add-faq">
+                     اضافة سؤال
                   </Link>
                 </li>
 
