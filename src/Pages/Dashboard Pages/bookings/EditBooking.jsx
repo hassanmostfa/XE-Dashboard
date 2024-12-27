@@ -6,6 +6,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useGetBookingByIdQuery, useUpdateBookingMutation } from "../../../api/bookingSlice";
 import { useGetServicesQuery } from "../../../api/servicesSlice";
+import { useCreateTransactionMutation } from "../../../api/transactionsSlice";
 
 const EditBooking = () => {
   const navigate = useNavigate();
@@ -16,7 +17,7 @@ const EditBooking = () => {
 
   
   const [updateBooking] = useUpdateBookingMutation(); // API hook to update booking
-
+  const [createTransactions] = useCreateTransactionMutation();
   const paymentGates = [
     { id: 1, name: "paypal" },
     { id: 2, name: "stripe" },
@@ -80,6 +81,16 @@ const EditBooking = () => {
 
     try {
       await updateBooking({ id, ...formData }).unwrap(); // Send updated data to the backend
+      if (formData.payment_status === "paid" && booking.booking.payment_status !== "paid") {
+        await createTransactions({
+          booking_id: id,
+          amount: booking.booking.service.price,
+          payment_method: formData.payment_gate,
+          payment_status: "success",
+          status: "paid",
+          transaction_id: Math.floor(Math.random() * 1000000),
+        });
+      }
       Swal.fire("تم!", "تم تحديث الحجز بنجاح.", "success");
       navigate("/admin/bookings");
     } catch (err) {
